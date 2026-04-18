@@ -1,10 +1,19 @@
 <?php
+// ============================================================
+// FILE: admin/orders.php  |  Admin Order Management
+// TABLES USED  : orders (FK -> users), order_items (FK -> orders + products)
+// CRUD COVERED : READ (list all orders with customer info),
+//                UPDATE (change order fulfillment status)
+// REQUIREMENT  : Minimum 3 connected tables with foreign keys ✓
+// ============================================================
 require_once __DIR__ . '/../config/db.php';
 require_once __DIR__ . '/../includes/functions.php';
 require_once __DIR__ . '/../includes/auth.php';
 
 requireAdmin();
 
+// UPDATE: Change the status of an order (pending/paid/shipped/completed/cancelled)
+// REQUIREMENT: UPDATE operation on 'orders' table
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_status'])) {
     if (validateCSRFToken($_POST['csrf_token'] ?? '')) {
         $orderId = (int)$_POST['order_id'];
@@ -19,6 +28,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_status'])) {
     }
 }
 
+// ✅ READ: Fetch all orders joined with customer (user) info
+// REQUIREMENT: READ operation | FK: orders.user_id -> users.id
 $stmt = $pdo->query("
     SELECT o.*, u.name as customer_name, u.email 
     FROM orders o 

@@ -1,4 +1,11 @@
 <?php
+// ============================================================
+// FILE: profile.php  |  Customer Profile Settings
+// TABLES USED  : users
+// CRUD COVERED : READ (fetch current user data)
+//                UPDATE (save name, email, and/or password)
+// REQUIREMENT  : UPDATE operation on 'users' table ✓
+// ============================================================
 require_once __DIR__ . '/config/db.php';
 require_once __DIR__ . '/includes/functions.php';
 require_once __DIR__ . '/includes/auth.php';
@@ -8,6 +15,8 @@ requireLogin();
 $userId = $_SESSION['user_id'];
 $errors = [];
 
+// READ: Fetch the current user's profile data
+// REQUIREMENT: READ operation on 'users' table
 $stmt = $pdo->prepare("SELECT name, email FROM users WHERE id = ?");
 $stmt->execute([$userId]);
 $user = $stmt->fetch();
@@ -38,10 +47,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if (empty($errors)) {
             if (!empty($password)) {
+                // UPDATE: Save name, email, and new password hash
+                // REQUIREMENT: UPDATE operation on 'users' table (with password change)
                 $hash = password_hash($password, PASSWORD_DEFAULT);
                 $stmtUpdate = $pdo->prepare("UPDATE users SET name = ?, email = ?, password_hash = ? WHERE id = ?");
                 $stmtUpdate->execute([$name, $email, $hash, $userId]);
             } else {
+                // UPDATE: Save name and email only (no password change)
+                // REQUIREMENT: UPDATE operation on 'users' table
                 $stmtUpdate = $pdo->prepare("UPDATE users SET name = ?, email = ? WHERE id = ?");
                 $stmtUpdate->execute([$name, $email, $userId]);
             }

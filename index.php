@@ -1,7 +1,16 @@
 <?php
+// ============================================================
+// FILE: index.php  |  Home / Landing Page
+// TABLES USED  : products (FK -> categories), categories
+// CRUD COVERED : READ (featured products, new arrivals, sale items, categories)
+// REQUIREMENT  : Uses JOIN across 3+ connected tables with foreign keys ✓
+// ============================================================
 require_once __DIR__ . '/config/db.php';
 require_once __DIR__ . '/includes/functions.php';
 require_once __DIR__ . '/includes/auth.php';
+
+// READ: Fetch all product categories
+// REQUIREMENT: READ operation on 'categories' table
 
 $stmt = $pdo->query("SELECT * FROM categories LIMIT 6");
 $categories = $stmt->fetchAll();

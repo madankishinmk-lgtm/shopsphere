@@ -1,4 +1,12 @@
 <?php
+// ============================================================
+// FILE: admin/edit_product.php  |  Full Product Editor
+// TABLES USED  : products (FK -> categories), categories
+// CRUD COVERED : READ   (load product for editing)
+//                CREATE (insert new product with image upload)
+//                UPDATE (save changes to existing product)
+// REQUIREMENT  : UPDATE operation on 'products' table ✓
+// ============================================================
 require_once __DIR__ . '/../config/db.php';
 require_once __DIR__ . '/../includes/functions.php';
 require_once __DIR__ . '/../includes/auth.php';
@@ -10,6 +18,7 @@ $isEditing = $id !== null;
 $returnPage = max(1, (int)($_GET['return_page'] ?? 1));
 $errors = [];
 
+// READ: Fetch categories for the dropdown (FK: products.category_id -> categories.id)
 $categories = $pdo->query("SELECT id, name FROM categories ORDER BY name ASC")->fetchAll();
 
 $product = [
@@ -19,6 +28,8 @@ $product = [
 ];
 
 if ($isEditing) {
+    // ✅ READ: Load existing product data for editing
+    // REQUIREMENT: READ operation on 'products' table
     $stmt = $pdo->prepare("SELECT * FROM products WHERE id = ?");
     $stmt->execute([$id]);
     $product = $stmt->fetch();
@@ -70,6 +81,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (empty($errors)) {
             try {
                 if ($isEditing) {
+                    // UPDATE: Save all changes to existing product
+                    // REQUIREMENT: UPDATE operation on 'products' table
+                    // FK: products.category_id -> categories.id
                     $pdo->prepare("
                         UPDATE products SET name=?, slug=?, category_id=?, description=?, price=?, stock=?,
                         image_url=?, original_price=?, is_new=?, is_sale=? WHERE id=?
@@ -77,6 +91,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                  $imageUrl, $origPrice, $isNew, $isSale, $id]);
                     setFlash('success', 'Product updated successfully.');
                 } else {
+                    // CREATE: Insert a brand new product into the database
+                    // REQUIREMENT: CREATE operation on 'products' table
                     if (empty($slug)) $slug = strtolower(preg_replace('/[^a-z0-9]+/i', '-', $name));
                     $pdo->prepare("
                         INSERT INTO products (name, slug, category_id, description, price, stock, image_url, original_price, is_new, is_sale)

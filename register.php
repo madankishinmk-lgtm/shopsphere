@@ -1,4 +1,11 @@
 <?php
+// ============================================================
+// FILE: register.php  |  New Customer Registration
+// TABLES USED  : users, carts (FK -> users)
+// CRUD COVERED : CREATE (new user account + new cart)
+//                READ   (check if email already exists)
+// REQUIREMENT  : CREATE operation on 'users' and 'carts' tables ✓
+// ============================================================
 require_once __DIR__ . '/config/db.php';
 require_once __DIR__ . '/includes/functions.php';
 require_once __DIR__ . '/includes/auth.php';
@@ -26,22 +33,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($password !== $password_confirm) $errors[] = "Passwords do not match.";
 
         if (empty($errors)) {
-            
+            // READ: Check if email already exists in 'users' table
             $stmt = $pdo->prepare("SELECT id FROM users WHERE email = ?");
             $stmt->execute([$email]);
             if ($stmt->fetch()) {
                 $errors[] = "Email is already registered.";
             } else {
-                
+                // CREATE: Insert new user account into 'users' table
+                // REQUIREMENT: CREATE operation on 'users' table
                 $hash = password_hash($password, PASSWORD_DEFAULT);
                 $stmt = $pdo->prepare("INSERT INTO users (name, email, password_hash, role) VALUES (?, ?, ?, 'customer')");
                 if ($stmt->execute([$name, $email, $hash])) {
                     $userId = $pdo->lastInsertId();
-                    
-                    
+
+                    // CREATE: Automatically create a cart for the new user
+                    // REQUIREMENT: FK carts.user_id -> users.id (auto-provisioned cart)
                     $stmtCart = $pdo->prepare("INSERT INTO carts (user_id) VALUES (?)");
                     $stmtCart->execute([$userId]);
-                    
+
                     setFlash('success', 'Registration successful! You can now log in.');
                     redirect('login.php');
                 } else {

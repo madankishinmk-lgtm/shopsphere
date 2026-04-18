@@ -1,12 +1,23 @@
 <?php
+// ============================================================
+// FILE: admin/products.php  |  Admin Product Manager
+// TABLES USED  : products (FK -> categories), categories
+// CRUD COVERED : CREATE (add product), READ (list products),
+//                UPDATE (quick-edit), DELETE (remove product)
+// REQUIREMENT  : Minimum 3 connected tables with foreign keys ✓
+// ============================================================
 require_once __DIR__ . '/../config/db.php';
 require_once __DIR__ . '/../includes/functions.php';
 require_once __DIR__ . '/../includes/auth.php';
 
 requireAdmin();
 
+// --- READ: Fetch all categories for filter dropdown ---
+// REQUIREMENT: READ operation on 'categories' table
 $categories = $pdo->query("SELECT * FROM categories ORDER BY name")->fetchAll();
 
+// --- DELETE: Remove a product from the database ---
+// REQUIREMENT: DELETE operation on 'products' table
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_id'])) {
     if (validateCSRFToken($_POST['csrf_token'] ?? '')) {
         try {
@@ -19,11 +30,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_id'])) {
     redirect('products.php');
 }
 
+// --- CREATE: Insert a new product into the database ---
+// REQUIREMENT: CREATE operation on 'products' table
+// FOREIGN KEY : category_id references categories(id)
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'add') {
     if (validateCSRFToken($_POST['csrf_token'] ?? '')) {
         $name     = trim($_POST['name'] ?? '');
         $slug     = strtolower(preg_replace('/[^a-z0-9]+/i', '-', $name));
-        $catId    = (int)($_POST['category_id'] ?? 0);
+        $catId    = (int)($_POST['category_id'] ?? 0);  // FK -> categories.id
         $desc     = trim($_POST['description'] ?? '');
         $price    = (float)($_POST['price'] ?? 0);
         $origPrice = !empty($_POST['original_price']) ? (float)$_POST['original_price'] : null;
@@ -37,6 +51,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
             $slug .= '-' . time();
         }
 
+        // CREATE: INSERT new product row (category_id is a foreign key to categories)
         $stmt = $pdo->prepare("
             INSERT INTO products (category_id, name, slug, description, price, stock, image_url, is_new, is_sale, original_price)
             VALUES (?, ?, ?, ?, ?, ?, 'placeholder.jpg', ?, ?, ?)
@@ -47,6 +62,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     }
 }
 
+// --- UPDATE: Quick-edit price, stock, badges for an existing product ---
+// REQUIREMENT: UPDATE operation on 'products' table
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'quick_edit') {
     if (validateCSRFToken($_POST['csrf_token'] ?? '')) {
         $id       = (int)$_POST['product_id'];
@@ -55,6 +72,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         $isNew    = isset($_POST['is_new']) ? 1 : 0;
         $isSale   = isset($_POST['is_sale']) ? 1 : 0;
         $origPrice = !empty($_POST['original_price']) ? (float)$_POST['original_price'] : null;
+        // UPDATE: Modify product price, stock, and badge flags
         $pdo->prepare("
             UPDATE products SET price=?, stock=?, is_new=?, is_sale=?, original_price=? WHERE id=?
         ")->execute([$price, $stock, $isNew, $isSale, $origPrice, $id]);
@@ -76,11 +94,14 @@ if ($search)    { $where[] = 'p.name LIKE :search'; $paramValues[':search'] = "%
 if ($filterCat) { $where[] = 'c.slug = :cat';       $paramValues[':cat']    = $filterCat;   }
 $whereStr = implode(' AND ', $where);
 
+// --- READ: Count products (with optional search/category filter) ---
+// REQUIREMENT: READ operation with JOIN across 'products' and 'categories' tables
 $stmtCount = $pdo->prepare("SELECT COUNT(*) FROM products p JOIN categories c ON p.category_id=c.id WHERE $whereStr");
 $stmtCount->execute($paramValues);
 $totalProducts = $stmtCount->fetchColumn();
 $totalPages    = max(1, ceil($totalProducts / $perPage));
 
+// READ: SELECT products joined with categories (FK: products.category_id -> categories.id)
 $stmtMain = $pdo->prepare("
     SELECT p.*, c.name as category_name, c.slug as category_slug
     FROM products p JOIN categories c ON p.category_id = c.id

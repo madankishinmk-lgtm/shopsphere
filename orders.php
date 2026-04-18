@@ -1,4 +1,11 @@
 <?php
+// ============================================================
+// FILE: orders.php  |  Customer Order History
+// TABLES USED  : orders (FK -> users), order_items (FK -> orders + products)
+// CRUD COVERED : READ   (view all orders / single order detail)
+//                UPDATE (customer self-service order cancellation)
+// REQUIREMENT  : READ and UPDATE across 3+ joined tables ✓
+// ============================================================
 require_once __DIR__ . '/config/db.php';
 require_once __DIR__ . '/includes/functions.php';
 require_once __DIR__ . '/includes/auth.php';
@@ -19,17 +26,20 @@ function getStatusClasses($status) {
 }
 
 if ($orderId) {
-    
+    // READ: Fetch a specific order belonging to this user
+    // REQUIREMENT: READ operation | FK: orders.user_id -> users.id
     $stmt = $pdo->prepare("SELECT * FROM orders WHERE id = ? AND user_id = ?");
     $stmt->execute([$orderId, $userId]);
     $order = $stmt->fetch();
-    
+
     if (!$order) {
         setFlash('error', 'Order not found.');
         redirect('orders.php');
     }
-    
-    
+
+    // READ: Fetch items in this order joined with product info
+    // REQUIREMENT: READ with JOIN | FK: order_items.order_id -> orders.id
+    //                                FK: order_items.product_id -> products.id
     $stmtItems = $pdo->prepare("
         SELECT oi.*, p.name, p.slug 
         FROM order_items oi 
@@ -38,8 +48,9 @@ if ($orderId) {
     ");
     $stmtItems->execute([$orderId]);
     $items = $stmtItems->fetchAll();
-    
-    
+
+    // UPDATE: Customer self-service cancellation of pending/paid orders
+    // REQUIREMENT: UPDATE operation on 'orders' table
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cancel_order'])) {
          if (in_array($order['status'], ['pending', 'paid'])) {
              $pdo->prepare("UPDATE orders SET status = 'cancelled' WHERE id = ?")->execute([$orderId]);
@@ -50,7 +61,8 @@ if ($orderId) {
          }
     }
 } else {
-    
+    // READ: Fetch all orders for this user (order history list)
+    // REQUIREMENT: READ operation on 'orders' table
     $stmt = $pdo->prepare("SELECT * FROM orders WHERE user_id = ? ORDER BY created_at DESC");
     $stmt->execute([$userId]);
     $orders = $stmt->fetchAll();

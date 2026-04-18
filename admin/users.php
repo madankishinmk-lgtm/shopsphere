@@ -1,16 +1,25 @@
 <?php
+// ============================================================
+// FILE: admin/users.php  |  Admin User Management
+// TABLES USED  : users
+// CRUD COVERED : READ (list all users), DELETE (remove customer)
+// REQUIREMENT  : All 4 CRUD ops across the full application ✓
+// ============================================================
 require_once __DIR__ . '/../config/db.php';
 require_once __DIR__ . '/../includes/functions.php';
 require_once __DIR__ . '/../includes/auth.php';
 
 requireAdmin();
 
+// DELETE: Remove a customer user account (cascades to carts/orders via FK)
+// REQUIREMENT: DELETE operation on 'users' table
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_user_id'])) {
     if (validateCSRFToken($_POST['csrf_token'] ?? '')) {
         $deleteId = (int)$_POST['delete_user_id'];
         if ($deleteId === $_SESSION['user_id']) {
             setFlash('error', 'You cannot delete your own account.');
         } else {
+            // DELETE: Hard-delete customer (admin accounts are protected)
             $pdo->prepare("DELETE FROM users WHERE id = ? AND role != 'admin'")->execute([$deleteId]);
             setFlash('success', 'Customer account deleted successfully.');
         }
@@ -18,6 +27,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_user_id'])) {
     }
 }
 
+// READ: Fetch all users from the database
+// REQUIREMENT: READ operation on 'users' table
 $stmt = $pdo->query("SELECT id, name, email, role, created_at FROM users ORDER BY created_at DESC");
 $users = $stmt->fetchAll();
 

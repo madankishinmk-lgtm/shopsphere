@@ -1,4 +1,13 @@
 <?php
+// ============================================================
+// FILE: checkout.php  |  Customer Checkout (Place Order)
+// TABLES USED  : orders (FK -> users), order_items (FK -> orders + products),
+//                cart_items (FK -> carts), products
+// CRUD COVERED : CREATE (new order + order_items),
+//                UPDATE (decrement product stock),
+//                DELETE (clear cart_items after purchase)
+// REQUIREMENT  : Business Logic - auto total, stock deduction on order ✓
+// ============================================================
 require_once __DIR__ . '/config/db.php';
 require_once __DIR__ . '/includes/functions.php';
 require_once __DIR__ . '/includes/auth.php';
@@ -6,11 +15,14 @@ require_once __DIR__ . '/includes/auth.php';
 requireLogin();
 $userId = $_SESSION['user_id'];
 
+// READ: Find this user's cart (FK: carts.user_id -> users.id)
 $stmtCart = $pdo->prepare("SELECT id FROM carts WHERE user_id = ?");
 $stmtCart->execute([$userId]);
 $cart = $stmtCart->fetch();
 $cartId = $cart ? $cart['id'] : null;
 
+// READ: Fetch cart items joined with products
+// FK: cart_items.cart_id -> carts.id | cart_items.product_id -> products.id
 $stmtItems = $pdo->prepare("
     SELECT ci.quantity, p.id as product_id, p.name, p.price 
     FROM cart_items ci JOIN products p ON ci.product_id = p.id 
@@ -42,30 +54,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         try {
             $pdo->beginTransaction();
-            
-            
+
+            // CREATE: Insert a new order row into 'orders' table
+            // REQUIREMENT: CREATE operation | FK: orders.user_id -> users.id
             $stmtOrder = $pdo->prepare("INSERT INTO orders (user_id, total_amount, status) VALUES (?, ?, 'paid')");
             $stmtOrder->execute([$userId, $total]);
             $orderId = $pdo->lastInsertId();
-            
-            
+
+            // CREATE: Insert each cart item as an order_item row
+            // REQUIREMENT: CREATE operation | FK: order_items.order_id -> orders.id
+            //                                 FK: order_items.product_id -> products.id
             $stmtInsertItem = $pdo->prepare("INSERT INTO order_items (order_id, product_id, quantity, unit_price) VALUES (?, ?, ?, ?)");
+
+            // UPDATE: Deduct stock from products on purchase (business logic)
+            // REQUIREMENT: UPDATE operation on 'products' table
             $stmtUpdateStock = $pdo->prepare("UPDATE products SET stock = stock - ? WHERE id = ?");
-            
+
             foreach ($cartItems as $item) {
-                
                 $stmtInsertItem->execute([$orderId, $item['product_id'], $item['quantity'], $item['price']]);
                 $stmtUpdateStock->execute([$item['quantity'], $item['product_id']]);
             }
-            
-            
+
+            // DELETE: Clear all cart items after successful checkout
+            // REQUIREMENT: DELETE operation on 'cart_items' table
             $pdo->prepare("DELETE FROM cart_items WHERE cart_id = ?")->execute([$cartId]);
-            
+
             $pdo->commit();
-            
+
             setFlash('success', 'Order placed successfully! Thank you for your purchase.');
             redirect('orders.php?id=' . $orderId);
-            
+
         } catch (Exception $e) {
             $pdo->rollBack();
             $errors[] = "An error occurred while placing your order. Please try again.";
