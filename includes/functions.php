@@ -1,27 +1,17 @@
 <?php
 
-// Start session if not already started
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-/**
- * Format a number as a price
- */
 function formatPrice($amount) {
     return '$' . number_format((float)$amount, 2, '.', ',');
 }
 
-/**
- * Sanitize output to prevent XSS
- */
 function sanitize($string) {
     return htmlspecialchars($string ?? '', ENT_QUOTES, 'UTF-8');
 }
 
-/**
- * Flash Messages Helper
- */
 function setFlash($type, $message) {
     if (!isset($_SESSION['flash'])) {
         $_SESSION['flash'] = [];
@@ -38,9 +28,6 @@ function getFlash($type) {
     return [];
 }
 
-/**
- * Display flash messages
- */
 function displayFlashMessages() {
     $types = ['success' => 'bg-green-100 border-green-400 text-green-700',
               'error'   => 'bg-red-100 border-red-400 text-red-700',
@@ -58,9 +45,6 @@ function displayFlashMessages() {
     return $output;
 }
 
-/**
- * Generate CSRF token
- */
 function generateCSRFToken() {
     if (empty($_SESSION['csrf_token'])) {
         $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
@@ -68,37 +52,22 @@ function generateCSRFToken() {
     return $_SESSION['csrf_token'];
 }
 
-/**
- * Validate CSRF token
- */
 function validateCSRFToken($token) {
     return isset($_SESSION['csrf_token']) && hash_equals($_SESSION['csrf_token'], $token);
 }
 
-/**
- * Render CSRF Field
- */
 function csrfField() {
     $token = generateCSRFToken();
     return '<input type="hidden" name="csrf_token" value="' . $token . '">';
 }
 
-/**
- * Redirect and exit
- */
 function redirect($url) {
     header("Location: $url");
     exit;
 }
 
-/**
- * Return a product image URL matched to the product name.
- * - Local images served from /wadfinalexam/images/products/ (root-relative, works in any subdirectory)
- * - Book products use Open Library cover API (real book covers)
- * - All others use loremflickr.com with reliable single-word Flickr tags
- */
 function getProductImage($product) {
-    // Build a root-relative base path that works from any subdirectory (e.g. /admin/)
+    
     static $imgBase = null;
     if ($imgBase === null) {
         $projectRoot = str_replace('\\', '/', realpath(__DIR__ . '/..'));
@@ -115,7 +84,7 @@ function getProductImage($product) {
 
     $name = strtolower($product['name'] ?? '');
 
-    // ── ELECTRONICS ──────────────────────────────────────────────────────────────
+    
     if (str_contains($name, 'noise cancelling') || str_contains($name, 'noise-cancelling'))
         return 'https://loremflickr.com/800/800/headphones?lock=21';
     if (str_contains($name, 'wireless earbud') || str_contains($name, 'earbuds') || str_contains($name, 'earphone'))
@@ -143,7 +112,7 @@ function getProductImage($product) {
     if (str_contains($name, 'smartphone') || str_contains($name, 'iphone') || str_contains($name, 'mobile phone'))
         return 'https://loremflickr.com/800/800/smartphone?lock=2';
 
-    // ── CLOTHING ─────────────────────────────────────────────────────────────────
+    
     if (str_contains($name, 'hoodie') || str_contains($name, 'sweatshirt'))
         return 'https://loremflickr.com/800/800/hoodie?lock=10';
     if (str_contains($name, 'jacket') || str_contains($name, 'coat'))
@@ -161,7 +130,7 @@ function getProductImage($product) {
     if (str_contains($name, 'wallet'))
         return 'https://loremflickr.com/800/800/wallet?lock=9';
 
-    // ── BOOKS — real covers from Open Library ─────────────────────────────────────
+    
     if (str_contains($name, 'gatsby'))
         return 'https://covers.openlibrary.org/b/isbn/9780743273565-L.jpg';
     if (str_contains($name, '1984') || str_contains($name, 'orwell'))
@@ -177,7 +146,7 @@ function getProductImage($product) {
     if (str_contains($name, 'book') || str_contains($name, 'novel') || str_contains($name, 'biography'))
         return 'https://loremflickr.com/800/800/book?lock=10';
 
-    // ── HOME & LIVING ─────────────────────────────────────────────────────────────
+    
     if (str_contains($name, 'sofa') || str_contains($name, 'couch'))
         return 'https://loremflickr.com/800/800/sofa?lock=8';
     if (str_contains($name, 'coffee table'))
@@ -197,7 +166,7 @@ function getProductImage($product) {
     if (str_contains($name, 'coffee maker') || str_contains($name, 'coffee'))
         return 'https://loremflickr.com/800/800/coffee?lock=2';
 
-    // ── SPORTS ───────────────────────────────────────────────────────────────────
+    
     if (str_contains($name, 'yoga mat') || str_contains($name, 'yoga'))
         return 'https://loremflickr.com/800/800/yoga?lock=7';
     if (str_contains($name, 'dumbbell') || str_contains($name, 'weight'))
@@ -217,7 +186,7 @@ function getProductImage($product) {
     if (str_contains($name, 'football') || str_contains($name, 'soccer'))
         return 'https://loremflickr.com/800/800/football?lock=2';
 
-    // ── CATEGORY FALLBACKS ────────────────────────────────────────────────────────
+    
     $category = strtolower($product['category_name'] ?? '');
     if (str_contains($category, 'electronic'))  return 'https://loremflickr.com/800/800/electronics?lock=1';
     if (str_contains($category, 'cloth') || str_contains($category, 'fashion')) return 'https://loremflickr.com/800/800/fashion?lock=1';

@@ -1,12 +1,10 @@
 <?php
-// includes/header.php
+
 require_once __DIR__ . '/functions.php';
 require_once __DIR__ . '/auth.php';
 
-// Determine base URL for links when in subdirectories (e.g. /admin/)
 $baseUrl = strpos($_SERVER['REQUEST_URI'], '/admin/') !== false ? '../' : '';
 
-// Active page helper
 $currentPage = basename($_SERVER['PHP_SELF']);
 function navClass($page, $current) {
     return $page === $current 
@@ -22,12 +20,12 @@ function navClass($page, $current) {
     <title>ShopSphere — Premium E-Commerce</title>
     <meta name="description" content="Shop the best electronics, clothing, books, home goods, and sports equipment at ShopSphere.">
 
-    <!-- Google Fonts -->
+    
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
-    <!-- Tailwind CSS CDN -->
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -53,21 +51,18 @@ function navClass($page, $current) {
 </head>
 <body class="min-h-full flex flex-col font-sans text-gray-900 bg-white">
 
-<!-- ===========================
-     NAVIGATION BAR
-     =========================== -->
 <nav class="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
 
-            <!-- LEFT: Logo + Desktop Links -->
+            
             <div class="flex items-center">
-                <!-- Logo -->
+                
                 <a href="<?= $baseUrl ?>index.php" class="flex-shrink-0 text-2xl font-extrabold text-indigo-600 tracking-tight mr-8">
                     ShopSphere
                 </a>
 
-                <!-- Desktop Nav Links -->
+                
                 <div class="hidden md:flex items-center space-x-1">
                     <a href="<?= $baseUrl ?>index.php"
                        class="<?= navClass('index.php', $currentPage) ?> px-3 py-2 rounded-md text-sm font-medium transition-colors border-0 hover:bg-gray-100">
@@ -78,7 +73,7 @@ function navClass($page, $current) {
                         Shop
                     </a>
 
-                    <!-- Categories Dropdown -->
+                    
                     <div class="relative group">
                         <button class="flex items-center gap-1 px-3 py-2 rounded-md text-sm font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-700 transition-colors">
                             Categories
@@ -86,7 +81,7 @@ function navClass($page, $current) {
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
                             </svg>
                         </button>
-                        <!-- Dropdown panel -->
+                        
                         <div class="absolute left-0 top-full mt-1 w-52 bg-white rounded-xl shadow-xl border border-gray-100 hidden group-hover:block z-50 overflow-hidden">
                             <a href="<?= $baseUrl ?>shop.php?category=electronics"
                                class="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 transition-colors">
@@ -129,9 +124,9 @@ function navClass($page, $current) {
                 </div>
             </div>
 
-            <!-- RIGHT: Cart + User -->
+            
             <div class="flex items-center gap-3">
-                <!-- Cart Icon -->
+                
                 <a href="<?= $baseUrl ?>cart.php" class="relative p-2 text-gray-400 hover:text-indigo-600 transition-colors rounded-full hover:bg-gray-100" title="Cart">
                     <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
@@ -139,7 +134,7 @@ function navClass($page, $current) {
                 </a>
 
                 <?php if (isLoggedIn()): ?>
-                    <!-- User Avatar Dropdown -->
+                    
                     <div class="relative group">
                         <button class="flex items-center gap-2 text-sm rounded-full focus:outline-none">
                             <span class="bg-indigo-600 text-white h-9 w-9 rounded-full flex items-center justify-center font-bold text-sm shadow-sm">
@@ -147,7 +142,7 @@ function navClass($page, $current) {
                             </span>
                         </button>
                         <div class="absolute right-0 top-full mt-2 w-60 bg-white rounded-xl shadow-xl border border-gray-100 hidden group-hover:block z-50 overflow-hidden">
-                            <!-- User Info -->
+                            
                             <div class="px-4 py-3 border-b border-gray-100">
                                 <div class="flex items-center justify-between">
                                     <p class="text-sm font-semibold text-gray-900 truncate"><?= sanitize($_SESSION['name'] ?? '') ?></p>
@@ -158,7 +153,7 @@ function navClass($page, $current) {
                                 <p class="text-xs text-gray-400 truncate mt-0.5"><?= sanitize($_SESSION['email'] ?? '') ?></p>
                             </div>
 
-                            <!-- Customer links -->
+                            
                             <a href="<?= $baseUrl ?>profile.php" class="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
                                 <svg class="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
                                 Your Profile
@@ -169,7 +164,7 @@ function navClass($page, $current) {
                             </a>
 
                             <?php if (isAdmin()): ?>
-                            <!-- Admin-only section -->
+                            
                             <div class="border-t border-indigo-100 mt-1 bg-indigo-50">
                                 <p class="px-4 pt-2 pb-1 text-xs font-semibold text-indigo-400 uppercase tracking-wider">Admin Tools</p>
                                 <a href="<?= $baseUrl ?>admin/index.php" class="flex items-center gap-2 px-4 py-2.5 text-sm text-indigo-700 hover:bg-indigo-100 transition-colors font-medium">
@@ -191,7 +186,7 @@ function navClass($page, $current) {
                             </div>
                             <?php endif; ?>
 
-                            <!-- Sign out -->
+                            
                             <div class="border-t border-gray-100">
                                 <a href="<?= $baseUrl ?>logout.php" class="flex items-center gap-2 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors">
                                     <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
@@ -211,7 +206,7 @@ function navClass($page, $current) {
                     </a>
                 <?php endif; ?>
 
-                <!-- Mobile Hamburger -->
+                
                 <button id="mobile-menu-btn" class="md:hidden p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none transition-colors" aria-label="Open menu">
                     <svg id="icon-open" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
@@ -224,7 +219,7 @@ function navClass($page, $current) {
         </div>
     </div>
 
-    <!-- Mobile Menu Panel -->
+    
     <div id="mobile-menu" class="hidden md:hidden border-t border-gray-200 bg-white">
         <div class="px-4 pt-2 pb-4 space-y-1">
             <a href="<?= $baseUrl ?>index.php" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-100">Home</a>
@@ -271,12 +266,10 @@ function navClass($page, $current) {
     </div>
 </nav>
 
-<!-- Flash Messages -->
 <div class="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 pt-4">
     <?= displayFlashMessages() ?>
 </div>
 
-<!-- Mobile menu toggle script -->
 <script>
     const btn = document.getElementById('mobile-menu-btn');
     const menu = document.getElementById('mobile-menu');

@@ -9,7 +9,6 @@ $userId = $_SESSION['user_id'];
 $cartItems = [];
 $subtotal = 0;
 
-// Fetch cart items
 $stmt = $pdo->prepare("
     SELECT ci.id as cart_item_id, ci.quantity, p.id as product_id, p.name, p.price, p.stock, p.image_url, p.slug
     FROM cart_items ci
@@ -24,7 +23,7 @@ foreach ($cartItems as $item) {
     $subtotal += $item['price'] * $item['quantity'];
 }
 
-$shipping = $subtotal > 50 ? 0 : 10; // Free shipping over 50
+$shipping = $subtotal > 50 ? 0 : 10; 
 $total = $subtotal + $shipping;
 
 if (empty($cartItems)) {
@@ -53,19 +52,19 @@ require_once __DIR__ . '/includes/header.php';
         <?php else: ?>
             <div class="lg:grid lg:grid-cols-12 lg:gap-x-12 lg:items-start">
                 
-                <!-- Cart Items Table -->
+                
                 <div class="lg:col-span-8 bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
                     <ul role="list" class="divide-y divide-gray-200" id="cart-items-container">
                         <?php foreach ($cartItems as $item): ?>
                             <li class="p-6 flex py-6" id="cart-item-<?= $item['product_id'] ?>">
-                                <!-- Image -->
+                                
                                 <div class="flex-shrink-0 w-24 h-24 border border-gray-200 rounded-md overflow-hidden flex items-center justify-center bg-gray-50">
                                     <img src="<?= getProductImage($item) ?>" 
                                          alt="<?= sanitize($item['name']) ?>"
                                          class="w-full h-full object-cover object-center">
                                 </div>
 
-                                <!-- Info -->
+                                
                                 <div class="ml-4 flex-1 flex flex-col justify-between">
                                     <div class="flex justify-between items-start">
                                         <div>
@@ -79,7 +78,7 @@ require_once __DIR__ . '/includes/header.php';
                                     
                                     <div class="flex flex-1 items-end justify-between text-sm">
                                         <div class="flex items-center space-x-3 border border-gray-300 rounded-md bg-white">
-                                            <!-- Qty Controls -->
+                                            
                                             <button type="button" onclick="updateCartQuantity(<?= $item['product_id'] ?>, -1, <?= $item['price'] ?>)" class="px-3 py-1 text-gray-600 hover:text-indigo-600 focus:outline-none transition-colors border-r border-gray-300">&minus;</button>
                                             <span class="font-medium px-2" id="qty-<?= $item['product_id'] ?>"><?= $item['quantity'] ?></span>
                                             <button type="button" onclick="updateCartQuantity(<?= $item['product_id'] ?>, 1, <?= $item['price'] ?>)" class="px-3 py-1 text-gray-600 hover:text-indigo-600 focus:outline-none transition-colors border-l border-gray-300 text-lg">&plus;</button>
@@ -98,7 +97,7 @@ require_once __DIR__ . '/includes/header.php';
                     </ul>
                 </div>
 
-                <!-- Order Summary -->
+                
                 <div class="lg:col-span-4 mt-8 lg:mt-0">
                     <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 sticky top-24">
                         <h2 class="text-lg font-medium text-gray-900 mb-6 border-b pb-4">Order summary</h2>
@@ -113,7 +112,7 @@ require_once __DIR__ . '/includes/header.php';
                                 <dd class="font-medium text-gray-900" id="summary-shipping"><?= $shipping === 0 ? 'Free' : formatPrice($shipping) ?></dd>
                             </div>
                             
-                            <!-- Threshold Alert -->
+                            
                             <?php if ($shipping > 0): ?>
                                 <div class="bg-indigo-50 text-indigo-700 px-3 py-2 rounded text-xs text-center border border-indigo-100" id="shipping-alert">
                                     Spend $<?= number_format(50 - $subtotal, 2) ?> more to get free shipping!

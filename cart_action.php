@@ -14,7 +14,6 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
-// Get JSON input
 $input = json_decode(file_get_contents('php://input'), true) ?? $_POST;
 
 $action = $input['action'] ?? '';
@@ -26,20 +25,18 @@ if (!$productId || !$action) {
     exit;
 }
 
-// Get user's active cart
 $stmtCart = $pdo->prepare("SELECT id FROM carts WHERE user_id = ?");
 $stmtCart->execute([$_SESSION['user_id']]);
 $cart = $stmtCart->fetch();
 
 if (!$cart) {
-    // Re-create cart if deleted for some reason
+    
     $pdo->prepare("INSERT INTO carts (user_id) VALUES (?)")->execute([$_SESSION['user_id']]);
     $cartId = $pdo->lastInsertId();
 } else {
     $cartId = $cart['id'];
 }
 
-// Fetch stock validation
 $stmtProd = $pdo->prepare("SELECT stock FROM products WHERE id = ?");
 $stmtProd->execute([$productId]);
 $product = $stmtProd->fetch();
@@ -51,7 +48,6 @@ if (!$product) {
 
 $stock = $product['stock'];
 
-// Fetch current item in cart if exists
 $stmtItem = $pdo->prepare("SELECT id, quantity FROM cart_items WHERE cart_id = ? AND product_id = ?");
 $stmtItem->execute([$cartId, $productId]);
 $item = $stmtItem->fetch();
@@ -70,7 +66,7 @@ try {
         }
         
         if ($newQty <= 0) {
-            // Remove if 0 or less
+            
             $pdo->prepare("DELETE FROM cart_items WHERE cart_id = ? AND product_id = ?")->execute([$cartId, $productId]);
         } else if ($item) {
             $pdo->prepare("UPDATE cart_items SET quantity = ? WHERE id = ?")->execute([$newQty, $item['id']]);

@@ -9,7 +9,6 @@ if (empty($slug)) {
     redirect('shop.php');
 }
 
-// Fetch basic product info
 $stmt = $pdo->prepare("SELECT p.*, c.name as category_name FROM products p JOIN categories c ON p.category_id = c.id WHERE p.slug = ?");
 $stmt->execute([$slug]);
 $product = $stmt->fetch();
@@ -19,11 +18,10 @@ if (!$product) {
     exit;
 }
 
-// Shared helper: add product to cart and return cartId or false
 function addProductToCart($pdo, $userId, $productId, $quantity, $stock) {
     if ($quantity <= 0 || $quantity > $stock) return false;
 
-    // Ensure cart exists
+    
     $stmtCart = $pdo->prepare("SELECT id FROM carts WHERE user_id = ?");
     $stmtCart->execute([$userId]);
     $cart = $stmtCart->fetch();
@@ -34,7 +32,7 @@ function addProductToCart($pdo, $userId, $productId, $quantity, $stock) {
         $cartId = $cart['id'];
     }
 
-    // Upsert cart item
+    
     $stmtItem = $pdo->prepare("SELECT id, quantity FROM cart_items WHERE cart_id = ? AND product_id = ?");
     $stmtItem->execute([$cartId, $productId]);
     $item = $stmtItem->fetch();
@@ -47,7 +45,6 @@ function addProductToCart($pdo, $userId, $productId, $quantity, $stock) {
     return true;
 }
 
-// Handle Add to Cart
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_to_cart'])) {
     if (!isLoggedIn()) {
         $_SESSION['redirect_to'] = "product.php?slug=" . urlencode($slug);
@@ -63,7 +60,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_to_cart'])) {
     }
 }
 
-// Handle Buy Now — add to cart then go straight to checkout
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['buy_now'])) {
     if (!isLoggedIn()) {
         $_SESSION['redirect_to'] = "product.php?slug=" . urlencode($slug);
@@ -83,7 +79,7 @@ require_once __DIR__ . '/includes/header.php';
 
 <div class="bg-white">
     <div class="pt-6 pb-16 sm:pb-24">
-        <!-- Breadcrumb -->
+        
         <nav aria-label="Breadcrumb" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-8 mt-4">
             <ol role="list" class="flex items-center space-x-2 text-sm">
                 <li>
@@ -111,7 +107,7 @@ require_once __DIR__ . '/includes/header.php';
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="lg:grid lg:grid-cols-2 lg:gap-x-8 lg:items-start">
                 
-                <!-- Image gallery -->
+                
                 <div class="flex-col-reverse">
                     <div class="w-full aspect-w-1 aspect-h-1 bg-gray-200 rounded-lg overflow-hidden flex justify-center items-center h-96">
                         <img src="<?= getProductImage($product) ?>" 
@@ -120,7 +116,7 @@ require_once __DIR__ . '/includes/header.php';
                     </div>
                 </div>
 
-                <!-- Product info -->
+                
                 <div class="mt-10 px-4 sm:px-0 sm:mt-16 lg:mt-0">
                     <h1 class="text-3xl font-extrabold tracking-tight text-gray-900"><?= sanitize($product['name']) ?></h1>
                     

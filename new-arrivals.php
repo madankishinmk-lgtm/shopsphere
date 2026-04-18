@@ -18,7 +18,7 @@ require_once __DIR__ . '/includes/header.php';
 <div class="bg-white">
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         
-        <!-- Page Header -->
+        
         <div class="mb-10">
             <div class="flex items-center space-x-3 mb-2">
                 <span class="inline-flex items-center px-3 py-0.5 rounded-full text-sm font-medium bg-green-100 text-green-800">✨ New</span>
@@ -32,7 +32,7 @@ require_once __DIR__ . '/includes/header.php';
                 <p class="text-gray-500">No new arrivals at the moment. Check back soon!</p>
             </div>
         <?php else: ?>
-            <!-- Group by category -->
+            
             <?php
             $grouped = [];
             foreach ($newProducts as $p) {

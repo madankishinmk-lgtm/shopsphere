@@ -1,15 +1,10 @@
 <?php
-/**
- * Database Configuration Template
- * Copy this file to db.php and fill in your credentials.
- * NEVER commit db.php to version control.
- */
 
-$host   = 'localhost';       // e.g. sql123.infinityfree.com
+$host   = 'localhost';       
 $db     = 'your_db_name';
 $user   = 'your_db_user';
 $pass   = 'your_db_password';
-$port   = '3306';            // 3307 for local XAMPP on non-default port
+$port   = '3306';            
 $charset = 'utf8mb4';
 
 $dsn = "mysql:host=$host;port=$port;dbname=$db;charset=$charset";

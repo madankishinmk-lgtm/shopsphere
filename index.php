@@ -3,11 +3,9 @@ require_once __DIR__ . '/config/db.php';
 require_once __DIR__ . '/includes/functions.php';
 require_once __DIR__ . '/includes/auth.php';
 
-// Fetch Categories
 $stmt = $pdo->query("SELECT * FROM categories LIMIT 6");
 $categories = $stmt->fetchAll();
 
-// Featured Products (latest 8, any category)
 $stmt = $pdo->query("
     SELECT p.*, c.name as category_name, c.slug as category_slug
     FROM products p
@@ -17,7 +15,6 @@ $stmt = $pdo->query("
 ");
 $featuredProducts = $stmt->fetchAll();
 
-// New Arrivals (is_new = 1, latest 4)
 $stmt = $pdo->query("
     SELECT p.*, c.name as category_name
     FROM products p
@@ -28,7 +25,6 @@ $stmt = $pdo->query("
 ");
 $newProducts = $stmt->fetchAll();
 
-// Sale Products (is_sale = 1, best discounts first)
 $stmt = $pdo->query("
     SELECT p.*, c.name as category_name
     FROM products p
@@ -42,13 +38,10 @@ $saleProducts = $stmt->fetchAll();
 require_once __DIR__ . '/includes/header.php';
 ?>
 
-<!-- ================================================
-     HERO SECTION - Full width
-     ================================================ -->
 <div class="relative bg-gradient-to-br from-indigo-50 via-white to-purple-50 overflow-hidden">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-32">
         <div class="lg:flex lg:items-center lg:gap-x-16">
-            <!-- Left: Text -->
+            
             <div class="flex-1">
                 <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold bg-indigo-100 text-indigo-800 mb-6">
                     ✨ New arrivals just dropped
@@ -73,7 +66,7 @@ require_once __DIR__ . '/includes/header.php';
                 </div>
             </div>
 
-            <!-- Right: Hero image collage -->
+            
             <div class="hidden lg:flex flex-1 gap-4 mt-12 lg:mt-0 relative">
                 <div class="flex flex-col gap-4 pt-8">
                     <div class="w-44 h-44 rounded-2xl overflow-hidden shadow-xl">
@@ -91,7 +84,7 @@ require_once __DIR__ . '/includes/header.php';
                         <img src="https://images.unsplash.com/photo-1512820790803-83ca734da794?q=80&w=400&auto=format&fit=crop" alt="Books" class="w-full h-full object-cover">
                     </div>
                 </div>
-                <!-- Decoration blobs -->
+                
                 <div class="absolute -top-10 -right-10 w-48 h-48 bg-purple-200 rounded-full mix-blend-multiply filter blur-2xl opacity-60"></div>
                 <div class="absolute -bottom-10 right-10 w-48 h-48 bg-indigo-200 rounded-full mix-blend-multiply filter blur-2xl opacity-60"></div>
             </div>
@@ -99,9 +92,6 @@ require_once __DIR__ . '/includes/header.php';
     </div>
 </div>
 
-<!-- ================================================
-     CATEGORIES SECTION
-     ================================================ -->
 <div id="categories" class="bg-white py-14">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <h2 class="text-3xl font-extrabold text-gray-900 mb-8">Shop by Category</h2>
@@ -123,9 +113,6 @@ require_once __DIR__ . '/includes/header.php';
     </div>
 </div>
 
-<!-- ================================================
-     FEATURED PRODUCTS - Full width grid
-     ================================================ -->
 <div class="bg-gray-50 py-14">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex items-center justify-between mb-8">
@@ -136,7 +123,7 @@ require_once __DIR__ . '/includes/header.php';
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             <?php foreach ($featuredProducts as $product): ?>
                 <div class="group bg-white border border-gray-200 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col overflow-hidden">
-                    <!-- Image -->
+                    
                     <a href="product.php?slug=<?= urlencode($product['slug']) ?>" class="block relative overflow-hidden">
                         <?php if ($product['stock'] <= 0): ?>
                             <span class="absolute top-2 right-2 bg-red-600 text-white text-xs font-bold px-2 py-1 rounded-full shadow z-10">Out of Stock</span>
@@ -157,7 +144,7 @@ require_once __DIR__ . '/includes/header.php';
                             ✏ Edit
                         </a>
                     <?php endif; ?>
-                    <!-- Info -->
+                    
                     <div class="p-4 flex-1 flex flex-col">
                         <h3 class="text-base font-semibold text-gray-900 mb-1 line-clamp-1">
                             <a href="product.php?slug=<?= urlencode($product['slug']) ?>" class="hover:text-indigo-600 transition-colors">
@@ -189,9 +176,6 @@ require_once __DIR__ . '/includes/header.php';
     </div>
 </div>
 
-<!-- ================================================
-     SALE BANNER
-     ================================================ -->
 <?php if (!empty($saleProducts)): ?>
 <div class="bg-gradient-to-r from-orange-500 to-red-600 py-14">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -246,9 +230,6 @@ require_once __DIR__ . '/includes/header.php';
 </div>
 <?php endif; ?>
 
-<!-- ================================================
-     NEW ARRIVALS TEASER
-     ================================================ -->
 <?php if (!empty($newProducts)): ?>
 <div class="bg-white py-14">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

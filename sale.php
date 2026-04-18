@@ -16,7 +16,7 @@ require_once __DIR__ . '/includes/header.php';
 ?>
 
 <div class="bg-white">
-    <!-- Sale Banner -->
+    
     <div class="bg-gradient-to-r from-orange-500 to-red-600 py-8 px-4 text-center text-white">
         <p class="text-sm font-semibold tracking-widest uppercase mb-1">Limited Time Offer</p>
         <h1 class="text-4xl font-extrabold mb-2">🔥 Sale & Promotions</h1>
@@ -30,7 +30,7 @@ require_once __DIR__ . '/includes/header.php';
                 <p class="text-gray-500">No sale items currently. Check back soon!</p>
             </div>
         <?php else: ?>
-            <!-- Group by category -->
+            
             <?php
             $grouped = [];
             foreach ($saleProducts as $p) {

@@ -28,7 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 loginUser($user);
                 setFlash('success', 'Welcome back, ' . sanitize($user['name']) . '!');
                 
-                // Redirect admin to admin panel, otherwise home or intended page
+                
                 if (isAdmin()) {
                     redirect('admin/index.php');
                 } else {

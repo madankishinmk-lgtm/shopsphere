@@ -19,7 +19,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_status'])) {
     }
 }
 
-// Fetch all orders
 $stmt = $pdo->query("
     SELECT o.*, u.name as customer_name, u.email 
     FROM orders o 

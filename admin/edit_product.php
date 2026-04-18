@@ -47,7 +47,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($categoryId <= 0)   $errors[] = "Category is required.";
         if ($price <= 0)        $errors[] = "Price must be greater than 0.";
 
-        // Handle image upload
         if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
             $allowed = ['image/jpeg', 'image/png', 'image/webp'];
             $fi = finfo_open(FILEINFO_MIME_TYPE);
@@ -131,7 +130,7 @@ require_once __DIR__ . '/../includes/header.php';
 
         <div class="px-6 py-8 space-y-6">
 
-            <!-- Name + Slug -->
+            
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                 <div class="sm:col-span-2">
                     <label class="block text-sm font-semibold text-gray-700 mb-1">Product Name *</label>
@@ -162,7 +161,6 @@ require_once __DIR__ . '/../includes/header.php';
                 </div>
             </div>
 
-            <!-- Price + Stock + Original Price -->
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-1">Price ($) *</label>
@@ -185,7 +183,6 @@ require_once __DIR__ . '/../includes/header.php';
                 </div>
             </div>
 
-            <!-- Badges -->
             <div class="flex gap-8 p-4 bg-gray-50 rounded-xl border border-gray-200">
                 <label class="flex items-center gap-3 cursor-pointer select-none">
                     <input type="checkbox" name="is_new" class="h-5 w-5 text-green-500 rounded border-gray-300"
@@ -205,7 +202,6 @@ require_once __DIR__ . '/../includes/header.php';
                 </label>
             </div>
 
-            <!-- Description -->
             <div>
                 <label class="block text-sm font-semibold text-gray-700 mb-1">Description</label>
                 <textarea name="description" rows="4"
@@ -213,7 +209,6 @@ require_once __DIR__ . '/../includes/header.php';
                           placeholder="Short description of the product..."><?= sanitize($_POST['description'] ?? $product['description']) ?></textarea>
             </div>
 
-            <!-- Image Upload -->
             <div>
                 <label class="block text-sm font-semibold text-gray-700 mb-2">Product Image</label>
                 <?php if ($isEditing): ?>
@@ -240,7 +235,6 @@ require_once __DIR__ . '/../includes/header.php';
             </div>
         </div>
 
-        <!-- Footer Actions -->
         <div class="flex items-center justify-between border-t border-gray-100 px-6 py-4 bg-gray-50">
             <a href="products.php?page=<?= $returnPage ?>" class="text-sm font-medium text-gray-500 hover:text-gray-700">Cancel</a>
             <button type="submit"
@@ -253,7 +247,7 @@ require_once __DIR__ . '/../includes/header.php';
 </div>
 
 <script>
-// Auto-generate slug from name if slug is empty
+
 document.getElementById('name-input')?.addEventListener('input', function() {
     const slugInput = document.getElementById('slug-input');
     if (!slugInput.value || slugInput.dataset.dirty !== 'true') {

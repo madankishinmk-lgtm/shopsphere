@@ -6,13 +6,11 @@ require_once __DIR__ . '/includes/auth.php';
 requireLogin();
 $userId = $_SESSION['user_id'];
 
-// Get cart info
 $stmtCart = $pdo->prepare("SELECT id FROM carts WHERE user_id = ?");
 $stmtCart->execute([$userId]);
 $cart = $stmtCart->fetch();
 $cartId = $cart ? $cart['id'] : null;
 
-// Get Cart Items
 $stmtItems = $pdo->prepare("
     SELECT ci.quantity, p.id as product_id, p.name, p.price 
     FROM cart_items ci JOIN products p ON ci.product_id = p.id 
@@ -39,28 +37,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!validateCSRFToken($_POST['csrf_token'] ?? '')) {
         $errors[] = "Invalid form submission.";
     } else {
-        // Here we'd validate the shipping address and payment info.
-        // For the scope of this project, we'll assume it's valid and proceed to create the order.
+        
+        
         
         try {
             $pdo->beginTransaction();
             
-            // 1. Create Order
+            
             $stmtOrder = $pdo->prepare("INSERT INTO orders (user_id, total_amount, status) VALUES (?, ?, 'paid')");
             $stmtOrder->execute([$userId, $total]);
             $orderId = $pdo->lastInsertId();
             
-            // 2. Insert Order Items & Update Stock
+            
             $stmtInsertItem = $pdo->prepare("INSERT INTO order_items (order_id, product_id, quantity, unit_price) VALUES (?, ?, ?, ?)");
             $stmtUpdateStock = $pdo->prepare("UPDATE products SET stock = stock - ? WHERE id = ?");
             
             foreach ($cartItems as $item) {
-                // Ignore stock constraint failures here for simplicity, in real app need strict locking
+                
                 $stmtInsertItem->execute([$orderId, $item['product_id'], $item['quantity'], $item['price']]);
                 $stmtUpdateStock->execute([$item['quantity'], $item['product_id']]);
             }
             
-            // 3. Clear Cart
+            
             $pdo->prepare("DELETE FROM cart_items WHERE cart_id = ?")->execute([$cartId]);
             
             $pdo->commit();
@@ -145,7 +143,7 @@ require_once __DIR__ . '/includes/header.php';
                 </form>
             </div>
 
-            <!-- Order Summary Sidebar -->
+            
             <div class="lg:col-span-5 mt-10 lg:mt-0">
                 <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 sticky top-24">
                     <h2 class="text-lg font-medium text-gray-900 mb-4">Summary</h2>

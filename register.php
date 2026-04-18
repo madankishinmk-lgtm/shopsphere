@@ -26,19 +26,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($password !== $password_confirm) $errors[] = "Passwords do not match.";
 
         if (empty($errors)) {
-            // Check if email already exists
+            
             $stmt = $pdo->prepare("SELECT id FROM users WHERE email = ?");
             $stmt->execute([$email]);
             if ($stmt->fetch()) {
                 $errors[] = "Email is already registered.";
             } else {
-                // Insert user
+                
                 $hash = password_hash($password, PASSWORD_DEFAULT);
                 $stmt = $pdo->prepare("INSERT INTO users (name, email, password_hash, role) VALUES (?, ?, ?, 'customer')");
                 if ($stmt->execute([$name, $email, $hash])) {
                     $userId = $pdo->lastInsertId();
                     
-                    // Create an empty cart for the new user automatically
+                    
                     $stmtCart = $pdo->prepare("INSERT INTO carts (user_id) VALUES (?)");
                     $stmtCart->execute([$userId]);
                     

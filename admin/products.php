@@ -3,11 +3,10 @@ require_once __DIR__ . '/../config/db.php';
 require_once __DIR__ . '/../includes/functions.php';
 require_once __DIR__ . '/../includes/auth.php';
 
-requireAdmin(); // Hard block — redirects non-admins
+requireAdmin();
 
 $categories = $pdo->query("SELECT * FROM categories ORDER BY name")->fetchAll();
 
-// ── DELETE ────────────────────────────────────────────────────────────────────
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_id'])) {
     if (validateCSRFToken($_POST['csrf_token'] ?? '')) {
         try {
@@ -20,7 +19,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_id'])) {
     redirect('products.php');
 }
 
-// ── ADD PRODUCT ───────────────────────────────────────────────────────────────
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'add') {
     if (validateCSRFToken($_POST['csrf_token'] ?? '')) {
         $name     = trim($_POST['name'] ?? '');
@@ -33,7 +31,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         $isNew    = isset($_POST['is_new']) ? 1 : 0;
         $isSale   = isset($_POST['is_sale']) ? 1 : 0;
 
-        // Check slug uniqueness
         $exists = $pdo->prepare("SELECT id FROM products WHERE slug = ?");
         $exists->execute([$slug]);
         if ($exists->fetch()) {
@@ -50,7 +47,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     }
 }
 
-// ── INLINE EDIT (quick update) ────────────────────────────────────────────────
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'quick_edit') {
     if (validateCSRFToken($_POST['csrf_token'] ?? '')) {
         $id       = (int)$_POST['product_id'];
@@ -67,7 +63,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     }
 }
 
-// ── FETCH ─────────────────────────────────────────────────────────────────────
 $search    = $_GET['search'] ?? '';
 $filterCat = $_GET['cat'] ?? '';
 $page      = max(1, (int)($_GET['page'] ?? 1));
@@ -75,19 +70,17 @@ $perPage   = 15;
 $offset    = ($page - 1) * $perPage;
 
 $where       = ['1=1'];
-$paramValues = [];   // named param map used by BOTH queries
+$paramValues = [];  
 
 if ($search)    { $where[] = 'p.name LIKE :search'; $paramValues[':search'] = "%$search%"; }
 if ($filterCat) { $where[] = 'c.slug = :cat';       $paramValues[':cat']    = $filterCat;   }
 $whereStr = implode(' AND ', $where);
 
-// COUNT query (only filter params, no pagination)
 $stmtCount = $pdo->prepare("SELECT COUNT(*) FROM products p JOIN categories c ON p.category_id=c.id WHERE $whereStr");
 $stmtCount->execute($paramValues);
 $totalProducts = $stmtCount->fetchColumn();
 $totalPages    = max(1, ceil($totalProducts / $perPage));
 
-// Main query — add :limit/:offset to named params
 $stmtMain = $pdo->prepare("
     SELECT p.*, c.name as category_name, c.slug as category_slug
     FROM products p JOIN categories c ON p.category_id = c.id
@@ -109,7 +102,6 @@ require_once __DIR__ . '/../includes/header.php';
 <div class="flex-grow bg-gray-50 py-8 pb-10">
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
-    <!-- Page Header -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
         <div>
             <h1 class="text-3xl font-extrabold text-gray-900">🛍 Manage Products</h1>
@@ -122,7 +114,6 @@ require_once __DIR__ . '/../includes/header.php';
         </button>
     </div>
 
-    <!-- Filter bar -->
     <form method="GET" class="flex flex-wrap gap-3 mb-6 bg-white p-4 rounded-xl shadow-sm border border-gray-100">
         <input type="text" name="search" value="<?= sanitize($search) ?>" placeholder="Search products..."
                class="flex-1 min-w-48 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-400 focus:outline-none">
@@ -140,7 +131,6 @@ require_once __DIR__ . '/../includes/header.php';
         <?php endif; ?>
     </form>
 
-    <!-- Product Table -->
     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
         <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-gray-200">
@@ -157,7 +147,7 @@ require_once __DIR__ . '/../includes/header.php';
                 <tbody class="bg-white divide-y divide-gray-100">
                     <?php foreach ($products as $product): ?>
                     <tr class="hover:bg-gray-50 transition-colors" id="row-<?= $product['id'] ?>">
-                        <!-- Product name + image -->
+
                         <td class="py-3 pl-4 pr-3">
                             <div class="flex items-center gap-3">
                                 <div class="flex-shrink-0 w-12 h-12 rounded-lg overflow-hidden bg-gray-100 border">
@@ -229,7 +219,6 @@ require_once __DIR__ . '/../includes/header.php';
             </table>
         </div>
 
-        <!-- Pagination -->
         <?php if ($totalPages > 1): ?>
         <div class="px-6 py-4 border-t border-gray-100 flex items-center justify-between text-sm text-gray-500">
             <span>Page <?= $page ?> of <?= $totalPages ?></span>
@@ -250,7 +239,6 @@ require_once __DIR__ . '/../includes/header.php';
 </div>
 </div>
 
-<!-- ══════════ ADD PRODUCT MODAL ══════════ -->
 <div id="add-modal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-black/50 backdrop-blur-sm">
   <div class="flex min-h-full items-center justify-center p-4 py-8">
     <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl">
@@ -324,7 +312,6 @@ require_once __DIR__ . '/../includes/header.php';
   </div>
 </div>
 
-<!-- ══════════ QUICK EDIT MODAL ══════════ -->
 <div id="edit-modal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-black/50 backdrop-blur-sm">
   <div class="flex min-h-full items-center justify-center p-4 py-8">
     <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg">
@@ -408,11 +395,10 @@ function openEdit(product) {
     document.getElementById('edit-modal').classList.remove('hidden');
 }
 
-// Close modals when clicking the backdrop or the centering wrapper (outside the card)
 ['add-modal','edit-modal'].forEach(id => {
     const overlay = document.getElementById(id);
     overlay.addEventListener('click', function(e) {
-        // Close if click lands on the backdrop or the flex centering wrapper
+
         if (e.target === overlay || e.target === overlay.firstElementChild) {
             overlay.classList.add('hidden');
         }

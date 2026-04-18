@@ -5,7 +5,6 @@ require_once __DIR__ . '/../includes/auth.php';
 
 requireAdmin();
 
-// Dashboard Stats
 $stats = [
     'total_sales' => $pdo->query("SELECT COALESCE(SUM(total_amount), 0) FROM orders WHERE status != 'cancelled'")->fetchColumn(),
     'orders_count' => $pdo->query("SELECT COUNT(*) FROM orders")->fetchColumn(),
@@ -13,7 +12,6 @@ $stats = [
     'low_stock' => $pdo->query("SELECT COUNT(*) FROM products WHERE stock < 10")->fetchColumn()
 ];
 
-// Recent Orders
 $recentOrders = $pdo->query("
     SELECT o.id, o.total_amount, o.status, o.created_at, u.name as customer_name, u.email
     FROM orders o JOIN users u ON o.user_id = u.id 
@@ -27,7 +25,6 @@ require_once __DIR__ . '/../includes/header.php';
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <h1 class="text-3xl font-extrabold text-gray-900 mb-8">Admin Dashboard</h1>
 
-        <!-- Stat Cards -->
         <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4 mb-8">
             <div class="bg-white overflow-hidden shadow rounded-lg border border-gray-200">
                 <div class="p-5">
@@ -86,7 +83,6 @@ require_once __DIR__ . '/../includes/header.php';
             </div>
         </div>
         
-        <!-- Navigation Grid -->
         <div class="grid grid-cols-1 gap-5 sm:grid-cols-3 mb-8">
             <a href="products.php" class="bg-white hover:bg-gray-50 shadow rounded-lg border border-gray-200 p-6 flex items-center justify-between transition-colors">
                 <div>
@@ -119,7 +115,6 @@ require_once __DIR__ . '/../includes/header.php';
             </a>
         </div>
 
-        <!-- Recent Orders Table -->
         <h2 class="text-xl font-bold text-gray-900 mb-4">Recent Orders</h2>
         <div class="bg-white shadow overflow-hidden sm:rounded-md border border-gray-200">
             <?php if (empty($recentOrders)): ?>

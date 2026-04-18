@@ -7,7 +7,6 @@ requireLogin();
 $userId = $_SESSION['user_id'];
 $orderId = isset($_GET['id']) ? (int)$_GET['id'] : null;
 
-// Helpers for UI
 function getStatusClasses($status) {
     return match($status) {
         'pending' => 'bg-yellow-100 text-yellow-800',
@@ -19,9 +18,8 @@ function getStatusClasses($status) {
     };
 }
 
-// Single Order Detail View
 if ($orderId) {
-    // Fetch order details
+    
     $stmt = $pdo->prepare("SELECT * FROM orders WHERE id = ? AND user_id = ?");
     $stmt->execute([$orderId, $userId]);
     $order = $stmt->fetch();
@@ -31,7 +29,7 @@ if ($orderId) {
         redirect('orders.php');
     }
     
-    // Fetch Items
+    
     $stmtItems = $pdo->prepare("
         SELECT oi.*, p.name, p.slug 
         FROM order_items oi 
@@ -41,7 +39,7 @@ if ($orderId) {
     $stmtItems->execute([$orderId]);
     $items = $stmtItems->fetchAll();
     
-    // Handle Cancellation
+    
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cancel_order'])) {
          if (in_array($order['status'], ['pending', 'paid'])) {
              $pdo->prepare("UPDATE orders SET status = 'cancelled' WHERE id = ?")->execute([$orderId]);
@@ -52,7 +50,7 @@ if ($orderId) {
          }
     }
 } else {
-    // Order History List View
+    
     $stmt = $pdo->prepare("SELECT * FROM orders WHERE user_id = ? ORDER BY created_at DESC");
     $stmt->execute([$userId]);
     $orders = $stmt->fetchAll();
@@ -65,7 +63,7 @@ require_once __DIR__ . '/includes/header.php';
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         <?php if ($orderId): ?>
-            <!-- Single Order Detail View -->
+            
             <div class="mb-4">
                 <a href="orders.php" class="text-indigo-600 hover:text-indigo-800 text-sm font-medium">&larr; Back to all orders</a>
             </div>
@@ -126,7 +124,7 @@ require_once __DIR__ . '/includes/header.php';
             </div>
 
         <?php else: ?>
-            <!-- Order History List View -->
+            
             <h1 class="text-3xl font-extrabold tracking-tight text-gray-900 mb-8">Order History</h1>
             
             <?php if (empty($orders)): ?>

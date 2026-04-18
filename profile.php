@@ -8,7 +8,6 @@ requireLogin();
 $userId = $_SESSION['user_id'];
 $errors = [];
 
-// Fetch current user data
 $stmt = $pdo->prepare("SELECT name, email FROM users WHERE id = ?");
 $stmt->execute([$userId]);
 $user = $stmt->fetch();
@@ -25,7 +24,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (empty($name)) $errors[] = "Name is required.";
         if (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) $errors[] = "Valid email is required.";
         
-        // Ensure email isn't used by someone else
+        
         $stmtCheck = $pdo->prepare("SELECT id FROM users WHERE email = ? AND id != ?");
         $stmtCheck->execute([$email, $userId]);
         if ($stmtCheck->fetch()) {
@@ -47,7 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $stmtUpdate->execute([$name, $email, $userId]);
             }
             
-            // Update session name
+            
             $_SESSION['name'] = $name;
             setFlash('success', 'Profile updated successfully.');
             redirect('profile.php');

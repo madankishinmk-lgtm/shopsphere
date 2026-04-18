@@ -3,23 +3,19 @@ require_once __DIR__ . '/config/db.php';
 require_once __DIR__ . '/includes/functions.php';
 require_once __DIR__ . '/includes/auth.php';
 
-// Pagination setup
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
 if ($page < 1) $page = 1;
 $perPage = 12;
 $offset = ($page - 1) * $perPage;
 
-// Filtering setup
 $categorySlug = $_GET['category'] ?? '';
 $search = $_GET['search'] ?? '';
 $minPrice = !empty($_GET['min_price']) ? (float)$_GET['min_price'] : 0;
 $maxPrice = !empty($_GET['max_price']) ? (float)$_GET['max_price'] : 10000;
 
-// Fetch Categories for Sidebar
 $stmt = $pdo->query("SELECT * FROM categories ORDER BY name ASC");
 $allCategories = $stmt->fetchAll();
 
-// Build Base Query
 $query = "SELECT p.*, c.name as category_name, c.slug as category_slug FROM products p JOIN categories c ON p.category_id = c.id WHERE 1=1";
 $params = [];
 
@@ -40,20 +36,17 @@ if ($maxPrice < 10000) {
     $params[] = $maxPrice;
 }
 
-// Get Total for Pagination
 $countQuery = str_replace("SELECT p.*, c.name as category_name, c.slug as category_slug", "SELECT COUNT(*)", $query);
 $stmtCount = $pdo->prepare($countQuery);
 $stmtCount->execute($params);
 $totalProducts = $stmtCount->fetchColumn();
 $totalPages = ceil($totalProducts / $perPage);
 
-// Final Fetch Query
 $query .= " ORDER BY p.created_at DESC LIMIT $perPage OFFSET $offset";
 $stmt = $pdo->prepare($query);
 $stmt->execute($params);
 $products = $stmt->fetchAll();
 
-// Helper for pagination links
 function getPaginationUrl($p) {
     return '?' . http_build_query(array_merge($_GET, ['page' => $p]));
 }
@@ -64,14 +57,14 @@ require_once __DIR__ . '/includes/header.php';
 <div class="bg-white">
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col md:flex-row gap-8">
         
-        <!-- Sidebar Filter (Desktop) -->
+        
         <aside class="w-full md:w-64 flex-shrink-0">
             <div class="bg-gray-50 p-6 rounded-lg shadow-sm border border-gray-100">
                 <h3 class="text-lg font-bold text-gray-900 mb-4 tracking-wide">Filters</h3>
                 
                 <form method="GET" action="shop.php" class="space-y-6">
                     
-                    <!-- Search -->
+                    
                     <div>
                         <label for="search" class="block text-sm font-medium text-gray-700">Search</label>
                         <div class="mt-1 relative rounded-md shadow-sm">
@@ -79,7 +72,7 @@ require_once __DIR__ . '/includes/header.php';
                         </div>
                     </div>
 
-                    <!-- Category -->
+                    
                     <div class="pt-4 border-t border-gray-200">
                         <label class="block text-sm font-medium text-gray-700 mb-2">Category</label>
                         <div class="space-y-2">
@@ -96,7 +89,7 @@ require_once __DIR__ . '/includes/header.php';
                         </div>
                     </div>
 
-                    <!-- Price -->
+                    
                     <div class="pt-4 border-t border-gray-200">
                         <label class="block text-sm font-medium text-gray-700 mb-2">Price Range</label>
                         <div class="flex items-center space-x-2">
@@ -118,7 +111,7 @@ require_once __DIR__ . '/includes/header.php';
             </div>
         </aside>
 
-        <!-- Product Grid -->
+        
         <div class="flex-1">
             <h1 class="text-2xl font-extrabold tracking-tight text-gray-900 mb-6">
                 <?php 
@@ -141,7 +134,7 @@ require_once __DIR__ . '/includes/header.php';
                 <div class="grid grid-cols-1 gap-y-10 sm:grid-cols-2 gap-x-6 lg:grid-cols-3 xl:gap-x-8">
                     <?php foreach ($products as $product): ?>
                         <div class="group bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col overflow-hidden">
-                            <!-- Product Image -->
+                            
                             <a href="product.php?slug=<?= urlencode($product['slug']) ?>" class="block relative overflow-hidden">
                                 <?php if ($product['stock'] <= 0): ?>
                                     <span class="absolute top-2 right-2 bg-red-600 text-white text-xs font-bold px-2 py-1 rounded shadow z-10">Out of Stock</span>
@@ -163,7 +156,7 @@ require_once __DIR__ . '/includes/header.php';
                                 </a>
                             <?php endif; ?>
 
-                            <!-- Product Info -->
+                            
                             <div class="p-4 flex-1 flex flex-col">
                                 <h3 class="text-base font-semibold text-gray-900 mb-1">
                                     <a href="product.php?slug=<?= urlencode($product['slug']) ?>" class="hover:text-indigo-600 transition-colors">
@@ -193,7 +186,7 @@ require_once __DIR__ . '/includes/header.php';
                 </div>
 
                 
-                <!-- Pagination -->
+                
                 <?php if ($totalPages > 1): ?>
                     <div class="mt-12 flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6">
                         <div class="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
