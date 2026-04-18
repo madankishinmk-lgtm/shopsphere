@@ -1,0 +1,31 @@
+# Database config (contains passwords — keep out of repo)
+config/db.php
+
+# Uploaded product images (large binary files)
+images/products/*.jpg
+images/products/*.jpeg
+images/products/*.png
+images/products/*.webp
+images/products/*.gif
+# Keep the directory itself
+!images/products/.gitkeep
+
+# Uploads folder
+uploads/
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# PHP session files
+*.sess
+
+# Logs
+*.log
