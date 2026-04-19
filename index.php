@@ -60,7 +60,7 @@ require_once __DIR__ . '/includes/header.php';
                     <span class="text-indigo-600">for your everyday</span>
                 </h1>
                 <p class="mt-6 text-xl text-gray-500 max-w-2xl">
-                    Discover the best tech, fashion, books, and home goods — all in one place. Built carefully to deliver exceptional quality directly to your doorstep.
+                    Discover the best tech, fashion, books, and home goods all in one place. Built carefully to deliver exceptional quality directly to your doorstep.
                 </p>
                 <div class="mt-10 flex flex-wrap gap-4">
                     <a href="shop.php" class="px-8 py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl shadow-lg transition-all duration-200 text-lg">
